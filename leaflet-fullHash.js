@@ -5,7 +5,7 @@
 			(doc_mode === undefined || doc_mode > 7);
 	})();
 
-	L.Hash = function(map, options) {
+	L.FullHash = function(map, options) {
 		this.onHashChange = L.Util.bind(this.onHashChange, this);
 
 		if (map) {
@@ -13,7 +13,7 @@
 		}
 	};
 
-	L.Hash.parseHash = function(hash) {
+	L.FullHash.parseHash = function(hash) {
 		if(hash.indexOf('#') === 0) {
 			hash = hash.substr(1);
 		}
@@ -37,7 +37,7 @@
 		}
 	};
 
-	L.Hash.formatHash = function(map) {
+	L.FullHash.formatHash = function(map) {
 		var center = map.getCenter(),
 		    zoom = map.getZoom(),
 		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2)),
@@ -61,12 +61,12 @@
 		].join("/");
 	},
 
-	L.Hash.prototype = {
+	L.FullHash.prototype = {
 		map: null,
 		lastHash: null,
 
-		parseHash: L.Hash.parseHash,
-		formatHash: L.Hash.formatHash,
+		parseHash: L.FullHash.parseHash,
+		formatHash: L.FullHash.formatHash,
 
 		init: function(map, options) {
 			this.map = map;
@@ -188,13 +188,13 @@
 			};
 		}
 	};
-	L.hash = function(map, options) {
-		return new L.Hash(map, options);
+	L.fullHash = function(map, options) {
+		return new L.FullHash(map, options);
 	};
 	L.Map.prototype.addHash = function() {
-		this._hash = L.hash(this, this.options);
+		this._fullhash = L.fullHash(this, this.options);
 	};
 	L.Map.prototype.removeHash = function() {
-		this._hash.removeFrom();
+		this._fullhash.removeFrom();
 	};
 })(window);
