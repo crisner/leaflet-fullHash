@@ -55,11 +55,10 @@
 			};
 		};
 
-		return "#" + [zoom,
-			center.lat.toFixed(precision),
-			center.lng.toFixed(precision),
-			layers.join("-")
-		].join("/");
+		return "#lat=" + 
+        center.lat.toFixed(precision) + "&lon=" + 
+        center.lng.toFixed(precision) + "&zoom=" + 
+        zoom + "&layers=" + layers.join(",")
 	},
 
 	L.FullHash.prototype = {
