@@ -1,3 +1,5 @@
+Add dynamic URL hash for leaflet from leaflet-fullHash for hash that has query strings as in [urlHash](https://github.com/jywarren/urlhash).
+
 leaflet-fullHash
 ================
 

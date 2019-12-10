@@ -5,7 +5,7 @@
 			(doc_mode === undefined || doc_mode > 7);
 	})();
 
-	L.Hash = function(map, options) {
+	L.FullHash = function(map, options) {
 		this.onHashChange = L.Util.bind(this.onHashChange, this);
 
 		if (map) {
@@ -13,37 +13,37 @@
 		}
 	};
 
-	L.Hash.parseHash = function(hash) {
-		if(hash.indexOf('#') === 0) {
-			hash = hash.substr(1);
-		}
-		var args = hash.split("/");
-		if (args.length == 4) {
-			var zoom = parseInt(args[0], 10),
-			lat = parseFloat(args[1]),
-			lon = parseFloat(args[2]),
-			layers = (args[3]).split("-");
-			if (isNaN(zoom) || isNaN(lat) || isNaN(lon)) {
-				return false;
-			} else {
-				return {
-					center: new L.LatLng(lat, lon),
-					zoom: zoom,
-					layers: layers
-				};
-			}
+	L.FullHash.parseHash = function(locationHash) {
+		// Modified from urlHash library -> https://github.com/jywarren/urlhash
+		// -----------------------------------
+		var hash = locationHash || location.hash;
+		if (hash) hash = hash.split('#')[1];
+		var pairs = hash.split('&');
+		var object = {};
+		pairs.forEach(function(pair, i) {
+		    pair = pair.split('=');
+		    if (pair[0] != '') object[pair[0]] = pair[1];
+		});
+
+
+		if(isNaN(object.lat) || isNaN(object.lon) || isNaN(object.zoom)) {
+		    return false;
 		} else {
-			return false;
+		    return {
+			    center: new L.LatLng(object.lat, object.lon),
+			    zoom: object.zoom,
+			    layers: object.layers.split(',')
+			};
 		}
+		// -----------------------------------
 	};
 
-	L.Hash.formatHash = function(map) {
+	L.FullHash.formatHash = function(map) {
 		var center = map.getCenter(),
 		    zoom = map.getZoom(),
 		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2)),
 		    layers = [];
 
-		//console.log(this.options);
 		var options = this.options;
 		//Check active layers
 		for(var key in options) {
@@ -54,19 +54,18 @@
 			};
 		};
 
-		return "#" + [zoom,
-			center.lat.toFixed(precision),
-			center.lng.toFixed(precision),
-			layers.join("-")
-		].join("/");
+		return "#lat=" + 
+        center.lat.toFixed(precision) + "&lon=" + 
+        center.lng.toFixed(precision) + "&zoom=" + 
+        zoom + "&layers=" + layers.join(",")
 	},
 
-	L.Hash.prototype = {
+	L.FullHash.prototype = {
 		map: null,
 		lastHash: null,
 
-		parseHash: L.Hash.parseHash,
-		formatHash: L.Hash.formatHash,
+		parseHash: L.FullHash.parseHash,
+		formatHash: L.FullHash.formatHash,
 
 		init: function(map, options) {
 			this.map = map;
@@ -109,8 +108,8 @@
 		},
 
 		movingMap: false,
-		update: function() {
-			var hash = location.hash;
+		update: function(locationHash) {
+			var hash = locationHash || location.hash;
 			if (hash === this.lastHash) {
 				return;
 			}
@@ -128,7 +127,6 @@
 				});
 
 				layers.forEach(function(element, index, array) {
-					//console.log(options[element]);
 					that.map.addLayer(options[element]);
 				});			
 
@@ -188,13 +186,13 @@
 			};
 		}
 	};
-	L.hash = function(map, options) {
-		return new L.Hash(map, options);
+	L.fullHash = function(map, options) {
+		return new L.FullHash(map, options);
 	};
 	L.Map.prototype.addHash = function() {
-		this._hash = L.hash(this, this.options);
+		this._fullhash = L.fullHash(this, this.options);
 	};
 	L.Map.prototype.removeHash = function() {
-		this._hash.removeFrom();
+		this._fullhash.removeFrom();
 	};
 })(window);
