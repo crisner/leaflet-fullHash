@@ -44,7 +44,6 @@
 		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2)),
 		    layers = [];
 
-		//console.log(this.options);
 		var options = this.options;
 		//Check active layers
 		for(var key in options) {
@@ -109,8 +108,8 @@
 		},
 
 		movingMap: false,
-		update: function() {
-			var hash = location.hash;
+		update: function(locationHash) {
+			var hash = locationHash || location.hash;
 			if (hash === this.lastHash) {
 				return;
 			}
@@ -128,7 +127,6 @@
 				});
 
 				layers.forEach(function(element, index, array) {
-					//console.log(options[element]);
 					that.map.addLayer(options[element]);
 				});			
 
