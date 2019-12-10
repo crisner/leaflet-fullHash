@@ -13,28 +13,29 @@
 		}
 	};
 
-	L.FullHash.parseHash = function(hash) {
-		if(hash.indexOf('#') === 0) {
-			hash = hash.substr(1);
-		}
-		var args = hash.split("/");
-		if (args.length == 4) {
-			var zoom = parseInt(args[0], 10),
-			lat = parseFloat(args[1]),
-			lon = parseFloat(args[2]),
-			layers = (args[3]).split("-");
-			if (isNaN(zoom) || isNaN(lat) || isNaN(lon)) {
-				return false;
-			} else {
-				return {
-					center: new L.LatLng(lat, lon),
-					zoom: zoom,
-					layers: layers
-				};
-			}
+	L.FullHash.parseHash = function(locationHash) {
+		// Modified from urlHash library -> https://github.com/jywarren/urlhash
+		// -----------------------------------
+		var hash = locationHash || location.hash;
+		if (hash) hash = hash.split('#')[1];
+		var pairs = hash.split('&');
+		var object = {};
+		pairs.forEach(function(pair, i) {
+		    pair = pair.split('=');
+		    if (pair[0] != '') object[pair[0]] = pair[1];
+		});
+
+
+		if(isNaN(object.lat) || isNaN(object.lon) || isNaN(object.zoom)) {
+		    return false;
 		} else {
-			return false;
+		    return {
+			    center: new L.LatLng(object.lat, object.lon),
+			    zoom: object.zoom,
+			    layers: object.layers.split(',')
+			};
 		}
+		// -----------------------------------
 	};
 
 	L.FullHash.formatHash = function(map) {
